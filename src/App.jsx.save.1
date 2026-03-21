@@ -1,0 +1,241 @@
+export default function QuantumSentinelSolutionsWebsite() {
+  const stats = [
+    { label: "Missions Processed", value: "2+", note: "Live orchestrator pipeline online" },
+    { label: "Cases Generated", value: "2", note: "Automated case creation active" },
+    { label: "Core Services", value: "5", note: "Postgres, Redis, MinIO, OpenSearch, Orchestrator" },
+    { label: "Operational Status", value: "Healthy", note: "API and worker stack responding" },
+  ];
+
+  const pillars = [
+    {
+      title: "SOC Command Center",
+      text: "Unified visibility across missions, findings, cases, evidence, and operational system health.",
+    },
+    {
+      title: "AI-Driven Detection",
+      text: "Launch repeatable missions for exposure reviews, compliance audits, fraud analysis, and threat hunts.",
+    },
+    {
+      title: "Evidence & Reporting",
+      text: "Capture artifacts, structure findings, and prepare executive-ready reporting workflows.",
+    },
+    {
+      title: "Enterprise Readiness",
+      text: "Designed to grow into a secure platform for regulated industries, government clients, and critical infrastructure.",
+    },
+  ];
+
+  const modules = [
+    "Command Center",
+    "Mission Control",
+    "Case Management",
+    "Findings Explorer",
+    "Artifact Repository",
+    "System Health",
+    "Compliance Intelligence",
+    "Executive Reporting",
+  ];
+
+  const industries = [
+    "Government & Defense",
+    "Energy & Utilities",
+    "Critical Infrastructure",
+    "Manufacturing",
+    "Healthcare",
+    "Enterprise Procurement & Compliance",
+  ];
+
+  const roadmap = [
+    "Connect live orchestrator data to the dashboard UI",
+    "Add authentication and role-based access",
+    "Create analyst, admin, and executive views",
+    "Enable mission launcher workflows from the browser",
+    "Implement real artifact storage and retrieval",
+    "Add reporting exports and customer-facing portal features",
+  ];
+
+  const nav = ["Platform", "Solutions", "Industries", "Roadmap", "Contact"];
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/85 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+          <div>
+            <div className="text-lg font-semibold tracking-wide">Quantum Sentinel Solutions</div>
+            <div className="text-xs uppercase tracking-[0.3em] text-orange-300">Cyber Operations Platform</div>
+          </div>
+          <nav className="hidden gap-6 text-sm text-slate-300 md:flex">
+            {nav.map((item) => (
+              <a key={item} href={`#${item.toLowerCase()}`} className="transition hover:text-white">
+                {item}
+              </a>
+            ))}
+          </nav>
+          <button className="rounded-2xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5">
+            Request Demo
+          </button>
+        </div>
+      </header>
+
+      <section id="platform" className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.22),transparent_28%),radial-gradient(circle_at_left,rgba(148,163,184,0.14),transparent_30%)]" />
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
+          <div>
+            <div className="mb-4 inline-flex items-center rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-1 text-sm text-orange-300">
+              Built for modern cyber operations and compliance intelligence
+            </div>
+            <h1 className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl">
+              Make Quantum Sentinel Solutions look and operate like an enterprise command platform.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+              Unify mission orchestration, case intelligence, evidence handling, and executive reporting into one premium operational experience for high-value clients.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <button className="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5">
+                Launch Platform
+              </button>
+              <button className="rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">
+                View Product Tour
+              </button>
+            </div>
+            <div className="mt-10 grid max-w-2xl grid-cols-2 gap-4 text-sm text-slate-400 sm:grid-cols-4">
+              <div>Mission Ops</div>
+              <div>Case Intelligence</div>
+              <div>Evidence Workflow</div>
+              <div>Executive Reporting</div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur">
+                <div className="text-sm text-slate-400">{stat.label}</div>
+                <div className="mt-3 text-3xl font-semibold text-white">{stat.value}</div>
+                <div className="mt-2 text-sm leading-6 text-slate-300">{stat.note}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-6 lg:px-8">
+        <div className="grid gap-3 rounded-[2rem] border border-white/10 bg-white/5 p-5 text-center text-sm text-slate-300 md:grid-cols-4">
+          <div>Mission orchestration stack online</div>
+          <div>Case generation working</div>
+          <div>Artifact pipeline scaffolded</div>
+          <div>Ready for client-facing polish</div>
+        </div>
+      </section>
+
+      <section id="solutions" className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <div className="mb-8 flex items-end justify-between gap-6">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Solutions</p>
+            <h2 className="mt-2 text-3xl font-semibold">Core value pillars</h2>
+          </div>
+          <p className="max-w-2xl text-sm leading-6 text-slate-400">
+            Position QSS as a premium cyber operations and compliance platform with a strong operational story and scalable architecture.
+          </p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {pillars.map((pillar) => (
+            <div key={pillar.title} className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl">
+              <h3 className="text-lg font-semibold">{pillar.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-300">{pillar.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-8 lg:grid-cols-[1fr_1fr] lg:px-8">
+        <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-xl">
+          <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Platform Modules</p>
+          <h2 className="mt-2 text-2xl font-semibold">What clients and analysts can access</h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {modules.map((module) => (
+              <div key={module} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-200">
+                {module}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div id="industries" className="rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-950 p-8 shadow-xl">
+          <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Target Industries</p>
+          <h2 className="mt-2 text-2xl font-semibold">Where QSS can win</h2>
+          <div className="mt-6 space-y-3">
+            {industries.map((industry) => (
+              <div key={industry} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200">
+                {industry}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur">
+          <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Why This Matters</p>
+          <h2 className="mt-2 text-3xl font-semibold">A multimillion-dollar company needs more than a homepage</h2>
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-slate-300">
+            The website should communicate trust, capability, and premium execution. The product should demonstrate operational depth. Together, they position Quantum Sentinel Solutions as both a serious company and a serious platform.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <div className="text-base font-semibold">Brand Authority</div>
+              <p className="mt-2 text-sm leading-6 text-slate-300">Sharper messaging, cleaner visuals, premium structure, and a stronger narrative for investors and clients.</p>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <div className="text-base font-semibold">Operational Credibility</div>
+              <p className="mt-2 text-sm leading-6 text-slate-300">Live mission data, case workflows, evidence visibility, and health monitoring that show this is not vaporware.</p>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
+              <div className="text-base font-semibold">Revenue Readiness</div>
+              <p className="mt-2 text-sm leading-6 text-slate-300">Demo flows, clear service positioning, industry alignment, and a foundation for enterprise onboarding.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap" className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+        <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-xl">
+          <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Roadmap</p>
+          <h2 className="mt-2 text-2xl font-semibold">What to build next</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {roadmap.map((item, idx) => (
+              <div key={item} className="flex gap-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-semibold text-white">
+                  {idx + 1}
+                </div>
+                <p className="text-sm leading-6 text-slate-300">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <div className="grid gap-8 rounded-[2rem] border border-white/10 bg-gradient-to-r from-slate-900 to-slate-950 p-8 shadow-2xl lg:grid-cols-[1fr_0.8fr] lg:items-center">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Next Step</p>
+            <h2 className="mt-2 text-3xl font-semibold">Make this website a real sales and operations engine</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
+              The next version should connect the polished front-end experience with your working Streamlit dashboard and orchestrator, creating one coherent company presence and one powerful product story.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            <button className="rounded-2xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5">
+              Book Executive Demo
+            </button>
+            <button className="rounded-2xl border border-white/15 bg-transparent px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              Enter Command Platform
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-white/10 px-6 py-8 text-sm text-slate-400 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="font-medium text-slate-200">Quantum Sentinel Solutions</div>
+            <div>Cyber oper

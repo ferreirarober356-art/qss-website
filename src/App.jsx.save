@@ -1,0 +1,5 @@
+export default function QuantumSentinelSolutionsWebsite() {
+  const stats = [
+    { label: "Missions Processed", value: "2+", note: "Live orchestrator pipeline online" },
+    { label: "Cases Generated", value: "2", note: "Automated case creation active" },
+    { label: "Core Services", value: "5", note: "Postg
