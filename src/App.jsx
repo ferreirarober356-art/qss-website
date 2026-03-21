@@ -9,16 +9,25 @@ export default function App() {
   useEffect(() => {
     async function load() {
       try {
-        const res1 = await fetch(`${API_BASE}/health`);
-        const res2 = await fetch(`${API_BASE}/cases/list`);
+        const healthRes = await fetch(`${API_BASE}/health`);
+        const health = await healthRes.json();
 
-        const health = await res1.json();
-        const data = await res2.json();
+        if (health?.ok) {
+          setStatus("Operational");
+        } else {
+          setStatus("Online");
+        }
 
-        setStatus(health?.ok ? "Operational" : "Online");
-        setCases(Array.isArray(data?.cases) ? data.cases.length : 0);
+        try {
+          const casesRes = await fetch(`${API_BASE}/cases/list`);
+          const data = await casesRes.json();
+          setCases(Array.isArray(data?.cases) ? data.cases.length : Number(data?.count ?? 0));
+        } catch (e) {
+          console.error("Cases fetch failed", e);
+          setCases(0);
+        }
       } catch (e) {
-        console.error(e);
+        console.error("Health fetch failed", e);
         setStatus("Offline");
         setCases(0);
       }
@@ -31,9 +40,7 @@ export default function App() {
     <div style={{ background: "#0f172a", color: "white", minHeight: "100vh", padding: "40px" }}>
       <h1>Quantum Sentinel Solutions</h1>
       <h2>Cyber Operations Platform</h2>
-
       <p>The Future of Cyber Operations Starts Here.</p>
-
       <div style={{ marginTop: "40px" }}>
         <div>System Status: <b>{status}</b></div>
         <div>Cases Available: <b>{cases}</b></div>
