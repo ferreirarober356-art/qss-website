@@ -1,18 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
+const API_BASE = "https://qss-backend-arzi.onrender.com";
+
 export default function App() {
   const [live, setLive] = useState({
     detections: 0,
     cases: 0,
     services: 5,
     status: "Checking...",
-  });
-
-  const [displayCounts, setDisplayCounts] = useState({
-    detections: 0,
-    cases: 0,
-    services: 0,
   });
 
   const screenshots = useMemo(
@@ -30,12 +26,12 @@ export default function App() {
     async function loadLiveStats() {
       try {
         const [casesRes, healthRes] = await Promise.all([
-          fetch("/api/cases/list"),
-          fetch("/api/health"),
+          fetch(`${API_BASE}/cases/list`),
+          fetch(`${API_BASE}/health`),
         ]);
 
         if (!casesRes.ok || !healthRes.ok) {
-          throw new Error("Backend returned non-200 response");
+          throw new Error(`HTTP ${casesRes.status}/${healthRes.status}`);
         }
 
         const cases = await casesRes.json();
@@ -45,14 +41,16 @@ export default function App() {
           ? cases.cases.length
           : Number(cases?.count ?? 0);
 
+        const status =
+          health?.ok === true || health?.status === "ok"
+            ? "Operational"
+            : "Online";
+
         setLive({
           detections: 1,
           cases: caseCount,
           services: 5,
-          status:
-            health?.ok === true || health?.status === "ok"
-              ? "Operational"
-              : "Online",
+          status,
         });
       } catch (err) {
         console.error("Live stats failed:", err);
@@ -69,32 +67,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const duration = 1200;
-    const steps = 40;
-    const interval = duration / steps;
-
-    const targets = {
-      detections: Number(live.detections) || 0,
-      cases: Number(live.cases) || 0,
-      services: Number(live.services) || 0,
-    };
-
-    let step = 0;
-    const timer = setInterval(() => {
-      step += 1;
-      const progress = step / steps;
-      setDisplayCounts({
-        detections: Math.round(targets.detections * progress),
-        cases: Math.round(targets.cases * progress),
-        services: Math.round(targets.services * progress),
-      });
-      if (step >= steps) clearInterval(timer);
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [live]);
-
-  useEffect(() => {
     const timer = setInterval(() => {
       setSlide((prev) => (prev + 1) % screenshots.length);
     }, 3500);
@@ -104,17 +76,17 @@ export default function App() {
   const stats = [
     {
       label: "Detection Engine",
-      value: String(displayCounts.detections),
+      value: String(live.detections),
       note: "Live platform workflow status",
     },
     {
       label: "Cases Available",
-      value: String(displayCounts.cases),
+      value: String(live.cases),
       note: "Real case data from backend",
     },
     {
       label: "Core Services",
-      value: String(displayCounts.services),
+      value: String(live.services),
       note: "Operational stack online",
     },
     {
@@ -157,11 +129,7 @@ export default function App() {
       </header>
 
       <section id="platform" className="px-6 py-24 max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <div className="inline-flex rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-1 text-sm text-orange-300">
             Built for modern cyber operations
           </div>
@@ -202,12 +170,7 @@ export default function App() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="grid grid-cols-2 gap-4"
-        >
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="grid grid-cols-2 gap-4">
           {stats.map((s) => (
             <div key={s.label} className="border border-white/10 p-5 rounded-2xl bg-white/5 shadow-xl">
               <div className="text-sm text-slate-400">{s.label}</div>
@@ -274,20 +237,6 @@ export default function App() {
               Add /public/qss-dashboard.png, /public/qss-dashboard-2.png, and /public/qss-dashboard-3.png
             </div>
           </div>
-
-          <div className="flex items-center justify-between border-t border-white/10 px-4 py-3">
-            <div className="text-sm text-slate-400">Live product preview</div>
-            <div className="flex gap-2">
-              {screenshots.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSlide(i)}
-                  className={`h-2.5 w-2.5 rounded-full ${i === slide ? "bg-orange-400" : "bg-white/20"}`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
@@ -304,39 +253,15 @@ export default function App() {
             </div>
 
             <form className="grid gap-4">
-              <input
-                type="text"
-                placeholder="Your name"
-                className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500"
-              />
-              <input
-                type="email"
-                placeholder="Work email"
-                className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500"
-              />
-              <input
-                type="text"
-                placeholder="Company"
-                className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500"
-              />
-              <textarea
-                rows="4"
-                placeholder="What would you like to see in the demo?"
-                className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500"
-              />
+              <input type="text" placeholder="Your name" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500" />
+              <input type="email" placeholder="Work email" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500" />
+              <input type="text" placeholder="Company" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500" />
+              <textarea rows="4" placeholder="What would you like to see in the demo?" className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none placeholder:text-slate-500" />
               <div className="flex flex-wrap gap-4">
-                <button
-                  type="button"
-                  className="inline-flex bg-orange-500 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
-                >
+                <button type="button" className="inline-flex bg-orange-500 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
                   Submit Demo Request
                 </button>
-                <a
-                  href="http://localhost:8501"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex border border-white/20 px-6 py-3 rounded-xl hover:bg-white/10 transition"
-                >
+                <a href="http://localhost:8501" target="_blank" rel="noreferrer" className="inline-flex border border-white/20 px-6 py-3 rounded-xl hover:bg-white/10 transition">
                   Launch Platform
                 </a>
               </div>
