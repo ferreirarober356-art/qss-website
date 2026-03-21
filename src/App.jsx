@@ -4,30 +4,32 @@ const API_BASE = "https://qss-backend-arzi.onrender.com";
 
 export default function App() {
   const [status, setStatus] = useState("Checking...");
-  const [cases, setCases] = useState(0);
+  const [cases, setCases] = useState([]);
+  const [caseCount, setCaseCount] = useState(0);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch(`${API_BASE}/health`);
         const health = await res.json();
-
-        if (health?.ok) {
-          setStatus("Operational");
-        } else {
-          setStatus("Online");
-        }
+        setStatus(health?.ok ? "Operational" : "Online");
 
         try {
           const c = await fetch(`${API_BASE}/cases/list`);
           const data = await c.json();
-          setCases(Number(data?.count ?? 0));
-        } catch {
-          setCases(0);
+          const rows = Array.isArray(data?.cases) ? data.cases : [];
+          setCases(rows);
+          setCaseCount(Number(data?.count ?? rows.length ?? 0));
+        } catch (err) {
+          console.error("Cases fetch failed:", err);
+          setCases([]);
+          setCaseCount(0);
         }
-      } catch {
+      } catch (err) {
+        console.error("Health fetch failed:", err);
         setStatus("Offline");
-        setCases(0);
+        setCases([]);
+        setCaseCount(0);
       }
     }
 
@@ -46,7 +48,7 @@ export default function App() {
           </div>
           <nav className="hidden gap-6 text-sm text-slate-300 md:flex">
             <a href="#platform" className="hover:text-white">Platform</a>
-            <a href="#solutions" className="hover:text-white">Solutions</a>
+            <a href="#cases" className="hover:text-white">Cases</a>
             <a href="#contact" className="hover:text-white">Contact</a>
           </nav>
         </div>
@@ -84,18 +86,11 @@ export default function App() {
               </a>
 
               <a
-                href="#contact"
+                href="#cases"
                 className="rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
               >
-                Request Demo
+                View Cases
               </a>
-            </div>
-
-            <div className="mt-10 grid max-w-2xl grid-cols-2 gap-4 text-sm text-slate-400 sm:grid-cols-4">
-              <div>Detection Ops</div>
-              <div>Threat Intelligence</div>
-              <div>Case Automation</div>
-              <div>Executive Reporting</div>
             </div>
           </div>
 
@@ -104,13 +99,13 @@ export default function App() {
               <div className="text-sm text-slate-400">System Status</div>
               <div className="mt-3 text-3xl font-semibold">{status}</div>
               <div className="mt-2 text-sm leading-6 text-slate-300">
-                Live operational health from the public backend.
+                Live operational health from the production backend.
               </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur">
               <div className="text-sm text-slate-400">Cases Available</div>
-              <div className="mt-3 text-3xl font-semibold">{cases}</div>
+              <div className="mt-3 text-3xl font-semibold">{caseCount}</div>
               <div className="mt-2 text-sm leading-6 text-slate-300">
                 Real case count returned by the production API.
               </div>
@@ -135,46 +130,54 @@ export default function App() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-6 lg:px-8">
-        <div className="grid gap-3 rounded-[2rem] border border-white/10 bg-white/5 p-5 text-center text-sm text-slate-300 md:grid-cols-4">
-          <div>Production frontend online</div>
-          <div>Production backend reachable</div>
-          <div>Stable health monitoring</div>
-          <div>Ready for real case data</div>
-        </div>
-      </section>
-
-      <section id="solutions" className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      <section id="cases" className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
         <div className="mb-8 flex items-end justify-between gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Solutions</p>
-            <h2 className="mt-2 text-3xl font-semibold">Purpose-built for high-trust cyber operations</h2>
+            <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Live Cases</p>
+            <h2 className="mt-2 text-3xl font-semibold">Case Management Table</h2>
           </div>
           <p className="max-w-2xl text-sm leading-6 text-slate-400">
-            Position QSS as a premium cyber operations and compliance platform with a strong operational story and scalable architecture.
+            This table is reading directly from your production backend and is the start of your live SOC case dashboard.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">Mission & Detection Operations</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Launch investigations, rule runs, and security workflows from a unified cyber operations interface.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">Case Intelligence</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Review case data, evidence patterns, and linked operational activity in one command platform.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">Explainable Security Workflows</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Support analyst decisions with structured outputs, repeatable flows, and operational transparency.
-            </p>
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="bg-white/5 text-slate-300">
+                <tr>
+                  <th className="px-5 py-4 font-medium">Case ID</th>
+                  <th className="px-5 py-4 font-medium">Title</th>
+                  <th className="px-5 py-4 font-medium">Priority</th>
+                  <th className="px-5 py-4 font-medium">Status</th>
+                  <th className="px-5 py-4 font-medium">Created By</th>
+                  <th className="px-5 py-4 font-medium">Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cases.length > 0 ? (
+                  cases.map((item, idx) => (
+                    <tr
+                      key={item.case_id ?? idx}
+                      className="border-t border-white/10 text-slate-200"
+                    >
+                      <td className="px-5 py-4">{item.case_id ?? "-"}</td>
+                      <td className="px-5 py-4">{item.title ?? "-"}</td>
+                      <td className="px-5 py-4">{item.priority ?? "-"}</td>
+                      <td className="px-5 py-4">{item.status ?? "-"}</td>
+                      <td className="px-5 py-4">{item.created_by ?? "-"}</td>
+                      <td className="px-5 py-4">{item.updated_at ?? "-"}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="border-t border-white/10 text-slate-400">
+                    <td className="px-5 py-6" colSpan="6">
+                      No live cases returned yet. Backend is connected, but the current dataset is empty.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -183,10 +186,9 @@ export default function App() {
         <div className="grid gap-8 rounded-[2rem] border border-white/10 bg-gradient-to-r from-slate-900 to-slate-950 p-8 shadow-2xl lg:grid-cols-[1fr_0.8fr] lg:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Next Step</p>
-            <h2 className="mt-2 text-3xl font-semibold">Make this a real command platform.</h2>
+            <h2 className="mt-2 text-3xl font-semibold">Build the full SOC interface.</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              The infrastructure is now stable. The next phase is adding live cases,
-              mission launch workflows, dashboard previews, and enterprise-grade UI polish.
+              Next we can add priority badges, filtering, case detail views, analyst notes, and mission launch workflows.
             </p>
           </div>
 
@@ -209,20 +211,6 @@ export default function App() {
           </div>
         </div>
       </section>
-
-      <footer className="border-t border-white/10 px-6 py-8 text-sm text-slate-400 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="font-medium text-slate-200">Quantum Sentinel Solutions</div>
-            <div>Cyber operations, compliance intelligence, and mission orchestration.</div>
-          </div>
-          <div className="flex gap-6">
-            <span>Platform</span>
-            <span>Solutions</span>
-            <span>Contact</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
