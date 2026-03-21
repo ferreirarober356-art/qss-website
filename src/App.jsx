@@ -4,34 +4,19 @@ const API_BASE = "https://qss-backend-arzi.onrender.com";
 
 function priorityBadge(priority) {
   const value = String(priority || "").toUpperCase();
-
-  if (value === "CRITICAL") {
-    return "bg-red-600/20 text-red-300 border border-red-500/30";
-  }
-  if (value === "HIGH") {
-    return "bg-orange-600/20 text-orange-300 border border-orange-500/30";
-  }
-  if (value === "MEDIUM") {
-    return "bg-yellow-600/20 text-yellow-300 border border-yellow-500/30";
-  }
-  if (value === "LOW") {
-    return "bg-emerald-600/20 text-emerald-300 border border-emerald-500/30";
-  }
+  if (value === "CRITICAL") return "bg-red-600/20 text-red-300 border border-red-500/30";
+  if (value === "HIGH") return "bg-orange-600/20 text-orange-300 border border-orange-500/30";
+  if (value === "MEDIUM") return "bg-yellow-600/20 text-yellow-300 border border-yellow-500/30";
+  if (value === "LOW") return "bg-emerald-600/20 text-emerald-300 border border-emerald-500/30";
   return "bg-slate-700/40 text-slate-300 border border-white/10";
 }
 
 function statusBadge(status) {
   const value = String(status || "").toUpperCase();
-
-  if (value === "OPEN") {
-    return "bg-blue-600/20 text-blue-300 border border-blue-500/30";
-  }
-  if (value === "ESCALATED") {
-    return "bg-red-600/20 text-red-300 border border-red-500/30";
-  }
-  if (value === "CLOSED") {
-    return "bg-emerald-600/20 text-emerald-300 border border-emerald-500/30";
-  }
+  if (value === "OPEN") return "bg-blue-600/20 text-blue-300 border border-blue-500/30";
+  if (value === "ACKNOWLEDGED") return "bg-cyan-600/20 text-cyan-300 border border-cyan-500/30";
+  if (value === "ESCALATED") return "bg-red-600/20 text-red-300 border border-red-500/30";
+  if (value === "CLOSED") return "bg-emerald-600/20 text-emerald-300 border border-emerald-500/30";
   return "bg-slate-700/40 text-slate-300 border border-white/10";
 }
 
@@ -43,34 +28,36 @@ export default function App() {
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedCase, setSelectedCase] = useState(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
 
-  useEffect(() => {
-    async function load() {
+  async function loadData() {
+    try {
+      const res = await fetch(`${API_BASE}/health`);
+      const health = await res.json();
+      setStatus(health?.ok ? "Operational" : "Online");
+
       try {
-        const res = await fetch(`${API_BASE}/health`);
-        const health = await res.json();
-        setStatus(health?.ok ? "Operational" : "Online");
-
-        try {
-          const c = await fetch(`${API_BASE}/cases/list`);
-          const data = await c.json();
-          const rows = Array.isArray(data?.cases) ? data.cases : [];
-          setCases(rows);
-          setCaseCount(Number(data?.count ?? rows.length ?? 0));
-        } catch (err) {
-          console.error("Cases fetch failed:", err);
-          setCases([]);
-          setCaseCount(0);
-        }
+        const c = await fetch(`${API_BASE}/cases/list`);
+        const data = await c.json();
+        const rows = Array.isArray(data?.cases) ? data.cases : [];
+        setCases(rows);
+        setCaseCount(Number(data?.count ?? rows.length ?? 0));
       } catch (err) {
-        console.error("Health fetch failed:", err);
-        setStatus("Offline");
+        console.error("Cases fetch failed:", err);
         setCases([]);
         setCaseCount(0);
       }
+    } catch (err) {
+      console.error("Health fetch failed:", err);
+      setStatus("Offline");
+      setCases([]);
+      setCaseCount(0);
     }
+  }
 
-    load();
+  useEffect(() => {
+    loadData();
   }, []);
 
   const filteredCases = useMemo(() => {
@@ -83,10 +70,7 @@ export default function App() {
       const q = search.trim().toLowerCase();
 
       const matchesSearch =
-        !q ||
-        title.includes(q) ||
-        createdBy.includes(q) ||
-        caseId.includes(q);
+        !q || title.includes(q) || createdBy.includes(q) || caseId.includes(q);
 
       const matchesPriority =
         priorityFilter === "ALL" || priority === priorityFilter;
@@ -97,6 +81,48 @@ export default function App() {
       return matchesSearch && matchesPriority && matchesStatus;
     });
   }, [cases, search, priorityFilter, statusFilter]);
+
+  async function runCaseAction(action) {
+    if (!selectedCase?.case_id) return;
+
+    setActionBusy(true);
+    setActionMessage("");
+
+    try {
+      const res = await fetch(`${API_BASE}/cases/${selectedCase.case_id}/action`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action,
+          actor: "Robert"
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || "Action failed");
+      }
+
+      const updatedCase = data.case;
+      setSelectedCase(updatedCase);
+
+      setCases((prev) =>
+        prev.map((c) =>
+          String(c.case_id) === String(updatedCase.case_id) ? updatedCase : c
+        )
+      );
+
+      setActionMessage(`${action} completed.`);
+    } catch (err) {
+      console.error(err);
+      setActionMessage(`Action failed: ${err.message}`);
+    } finally {
+      setActionBusy(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -116,10 +142,7 @@ export default function App() {
         </div>
       </header>
 
-      <section
-        id="platform"
-        className="relative overflow-hidden border-b border-white/10"
-      >
+      <section id="platform" className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.18),transparent_25%),radial-gradient(circle_at_left,rgba(148,163,184,0.12),transparent_30%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
           <div>
@@ -198,7 +221,7 @@ export default function App() {
             <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Live Cases</p>
             <h2 className="mt-2 text-3xl font-semibold">Case Management Table</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-              Search, filter, and open live cases directly from your production dashboard.
+              Search, filter, and take action on live cases directly from your production dashboard.
             </p>
           </div>
 
@@ -230,6 +253,7 @@ export default function App() {
             >
               <option value="ALL">All Statuses</option>
               <option value="OPEN">Open</option>
+              <option value="ACKNOWLEDGED">Acknowledged</option>
               <option value="ESCALATED">Escalated</option>
               <option value="CLOSED">Closed</option>
             </select>
@@ -254,7 +278,10 @@ export default function App() {
                   filteredCases.map((item, idx) => (
                     <tr
                       key={item.case_id ?? idx}
-                      onClick={() => setSelectedCase(item)}
+                      onClick={() => {
+                        setSelectedCase(item);
+                        setActionMessage("");
+                      }}
                       className="cursor-pointer border-t border-white/10 text-slate-200 transition hover:bg-white/5"
                     >
                       <td className="px-5 py-4">{item.case_id ?? "-"}</td>
@@ -292,7 +319,7 @@ export default function App() {
             <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Next Step</p>
             <h2 className="mt-2 text-3xl font-semibold">Build the full SOC interface.</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              Next we can add analyst notes, case actions, evidence links, and mission launch workflows.
+              Next we can add analyst notes, evidence links, mission launch workflows, and role-based views.
             </p>
           </div>
 
@@ -370,11 +397,45 @@ export default function App() {
               </div>
             </div>
 
+            <div className="mt-6">
+              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Case Actions</div>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <button
+                  disabled={actionBusy}
+                  onClick={() => runCaseAction("ACKNOWLEDGE")}
+                  className="rounded-2xl border border-cyan-500/30 bg-cyan-600/20 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-600/30 disabled:opacity-50"
+                >
+                  Acknowledge
+                </button>
+
+                <button
+                  disabled={actionBusy}
+                  onClick={() => runCaseAction("ESCALATE")}
+                  className="rounded-2xl border border-red-500/30 bg-red-600/20 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-600/30 disabled:opacity-50"
+                >
+                  Escalate
+                </button>
+
+                <button
+                  disabled={actionBusy}
+                  onClick={() => runCaseAction("CLOSE")}
+                  className="rounded-2xl border border-emerald-500/30 bg-emerald-600/20 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-600/30 disabled:opacity-50"
+                >
+                  Close
+                </button>
+              </div>
+
+              {actionMessage ? (
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+                  {actionMessage}
+                </div>
+              ) : null}
+            </div>
+
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
               <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Summary</div>
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                This case detail modal is wired to the live dashboard table. The next upgrade is loading the
-                full case record from a dedicated case details endpoint.
+                This case detail modal is now wired for live case actions. The next upgrade is storing analyst notes and activity history per case.
               </p>
             </div>
           </div>
